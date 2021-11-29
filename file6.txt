@@ -1,1 +1,2 @@
 this is for file6
+adding a line in file6
