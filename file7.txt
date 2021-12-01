@@ -1,1 +1,2 @@
 this is for file7
+this is another line
