@@ -1,0 +1,82 @@
+pipeline {
+    parameters {
+  choice choices: ['dev', 'stg', 'master'], description: 'Please select your branch', name: 'Branch'
+}
+
+    agent any
+environment {
+  PATH = "/opt/maven/bin:$PATH"
+}
+    stages {
+        stage('Hello') {
+            steps {
+                echo 'Hello World'
+            }
+        }
+        stage('checkout'){
+            steps{
+                checkout(
+                    [
+                        $class: 'GitSCM',
+                         branches: [[
+                             name: "*/${Branch}"
+                             ]
+                         ], 
+                         extensions: [],
+                          userRemoteConfigs: [
+                              [
+                                  credentialsId: 'bhanu-github',
+                                   url: 'https://github.com/bbattala/myapp.git'
+                                   ]
+                                   ]
+                                   ]
+                                   )
+            }
+        }
+        stage('Build'){
+            steps{
+                sh 'mvn package'
+            }
+        }
+        stage('Upload Artifact'){
+            steps{
+                script{
+                 def mavenpom = readMavenPom file: 'pom.xml'
+                nexusArtifactUploader artifacts: 
+                [
+                    [
+                        artifactId: 'hello-world-war', 
+                        classifier: '', 
+                        file: "target/hello-world-war-${mavenpom.version}.war",
+                         type: 'war'
+                         ]
+                         ],
+                          credentialsId: 'Nexus-cred', 
+                          groupId: 'com.efsavage', 
+                          nexusUrl: '13.127.24.126:8081', 
+                          nexusVersion: 'nexus3', 
+                          protocol: 'http',
+                           repository: 'enfec',
+                            version: "${mavenpom.version}"
+                }
+                
+            }
+        }
+        stage('Deploy'){
+            steps{
+                deploy adapters: 
+                [
+                    tomcat8
+                    (
+                        credentialsId:
+                         'shubham-tomcat-crid',
+                          path: '', 
+                          url: 'http://3.111.47.8:9090/'
+                          )
+                          ],
+                           contextPath: 'hello', 
+                           war: '**/*.war'
+            }
+        }
+    }
+}
