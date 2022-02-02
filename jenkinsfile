@@ -35,7 +35,7 @@ environment {
         }
         stage('Build'){
             steps{
-                sh 'mvn package'
+                sh 'mvn clean package'
             }
         }
         stage('Upload Artifact'){
@@ -53,7 +53,7 @@ environment {
                          ],
                           credentialsId: 'Nexus-cred', 
                           groupId: 'com.efsavage', 
-                          nexusUrl: '13.127.24.126:8081', 
+                          nexusUrl: '3.6.122.180:8081', 
                           nexusVersion: 'nexus3', 
                           protocol: 'http',
                            repository: 'enfec',
@@ -75,16 +75,14 @@ environment {
     }
     post{
         failure {
-            mail to: 'bhanukiran.battala@gmail', from: 'bhanukiran213@gmail.com',
+            mail to: 'bhanukiran.battala@xxxx.com,suresh.siripuram@xxxx.com', from: 'bhanukiran213@gmail.com',
                 subject: "buld status: ${env.JOB_NAME} - Failed", 
                 body: "Job Failed - \"${env.JOB_NAME}\" build: ${env.BUILD_NUMBER}\n\nView the log at:\n ${env.BUILD_URL}\n\nBlue Ocean:\n${env.RUN_DISPLAY_URL}"
         }
         success {
-            mail to: 'bhanukiran.battala@gmail', from: 'bhanukiran213@gmail.com',
+            mail to: 'bhanukiran.battala@xxxxxx.com,suresh.siripuram@xxxx.com', from: 'bhanukiran213@gmail.com',
                 subject: "buld status: ${env.JOB_NAME} - success", 
                 body: "Job success - \"${env.JOB_NAME}\" build: ${env.BUILD_NUMBER}\n\nView the log at:\n ${env.BUILD_URL}\n\nBlue Ocean:\n${env.RUN_DISPLAY_URL}"
         }
     }
         }
-    }
-}
